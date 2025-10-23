@@ -13,6 +13,7 @@ if (isset($_SESSION['user_id'])) {
 
 $error_message = '';
 $success_message = '';
+$redirect_to_login = false;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $login = $_POST['login'] ?? null;
@@ -61,84 +62,134 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $range_km
                 ]);
 
-                $success_message = 'Registration successful! You can now <a href="login.php">login</a>.';
+                $success_message = 'Registration successful! Redirecting to login...';
+                $redirect_to_login = true;
             }
         } catch (PDOException $e) {
             $error_message = 'Database error: ' . $e->getMessage();
         }
     }
 }
-
-include 'header.php';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Sustainable Delivery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<div class="container">
-    <form action="register.php" method="POST">
-        <h2>Create Deliverer Account</h2>
+<main>
+    <div class="container">
+        <form action="register.php" method="POST">
+            <h2>Create Deliverer Account</h2>
 
-        <?php if (!empty($error_message)): ?>
-            <div data-message="error"><?php echo htmlspecialchars($error_message); ?></div>
-        <?php endif; ?>
-        <?php if (!empty($success_message)): ?>
-            <div data-message="success"><?php echo $success_message; ?></div>
-        <?php endif; ?>
+            <div class="form-group">
+                <label for="login">Login*</label>
+                <input type="text" id="login" name="login" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password* (min 8 chars)</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password_confirm">Confirm Password*</label>
+                <input type="password" id="password_confirm" name="password_confirm" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="first_name">First Name*</label>
+                <input type="text" id="first_name" name="first_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="last_name">Last Name*</label>
+                <input type="text" id="last_name" name="last_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email*</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="location">Full Address*</label>
+                <input type="text" id="location" name="location" placeholder="e.g., 88 allées Jean Jaurès 31000 Toulouse" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="range_km">Max Delivery Range (KM)* (Max 100)</label>
+                <input type="number" id="range_km" name="range_km" max="100" min="1" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone (Optional)</label>
+                <input type="tel" id="phone" name="phone">
+            </div>
+            
+            <div class="form-group">
+                <label for="vehicle">Vehicle (Optional)</label>
+                <input type="text" id="vehicle" name="vehicle" placeholder="e.g., Renault Clio, Cargo Bike">
+            </div>
 
-        <div class="form-group">
-            <label for="login">Login*</label>
-            <input type="text" id="login" name="login" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="password">Password* (min 8 chars)</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="password_confirm">Confirm Password*</label>
-            <input type="password" id="password_confirm" name="password_confirm" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="first_name">First Name*</label>
-            <input type="text" id="first_name" name="first_name" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="last_name">Last Name*</label>
-            <input type="text" id="last_name" name="last_name" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="email">Email*</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="location">Full Address*</label>
-            <input type="text" id="location" name="location" placeholder="e.g., 88 allées Jean Jaurès 31000 Toulouse" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="range_km">Max Delivery Range (KM)* (Max 100)</label>
-            <input type="number" id="range_km" name="range_km" max="100" min="1" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="phone">Phone (Optional)</label>
-            <input type="tel" id="phone" name="phone">
-        </div>
-        
-        <div class="form-group">
-            <label for="vehicle">Vehicle (Optional)</label>
-            <input type="text" id="vehicle" name="vehicle" placeholder="e.g., Renault Clio, Cargo Bike">
-        </div>
+            <button type="submit">Register</button>
+            
+            <div class="text-center mt-3">
+                <p>Already have an account? <a href="login.php">Login here</a></p>
+            </div>
+        </form>
+    </div>
+</main>
 
-        <button type="submit">Register</button>
-        
-        <div class="text-center mt-3">
-            <p>Already have an account? <a href="login.php">Login here</a></p>
-        </div>
-    </form>
-</div>
+<?php if (!empty($error_message)): ?>
+    <div class="toast toast-error">
+        <span class="toast-icon">✕</span>
+        <span class="toast-message"><?php echo htmlspecialchars($error_message); ?></span>
+    </div>
+<?php endif; ?>
 
-<?php include 'footer.php'; ?>
+<?php if (!empty($success_message)): ?>
+    <div class="toast toast-success">
+        <span class="toast-icon">✓</span>
+        <span class="toast-message"><?php echo htmlspecialchars($success_message); ?></span>
+    </div>
+<?php endif; ?>
+
+<footer>
+    <p>&copy; <?php echo date('Y'); ?> Sustainable Delivery. All rights reserved.</p>
+</footer>
+
+<script>
+// Auto-dismiss toast notifications after 4 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const toasts = document.querySelectorAll('.toast');
+    toasts.forEach(toast => {
+        // Trigger fade in
+        setTimeout(() => {
+            toast.classList.add('toast-show');
+        }, 100);
+        
+        // Trigger fade out and remove
+        setTimeout(() => {
+            toast.classList.remove('toast-show');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 4000);
+    });
+    
+    <?php if ($redirect_to_login): ?>
+    // Auto-redirect to login after successful registration
+    setTimeout(() => {
+        window.location.href = 'login.php';
+    }, 2000);
+    <?php endif; ?>
+});
+</script>
+
+</body>
+</html>

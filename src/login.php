@@ -38,34 +38,72 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
-
-include 'header.php';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sustainable Delivery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<div class="container">
-    <form action="login.php" method="POST">
-        <h2>Deliverer Login</h2>
+<main>
+    <div class="container">
+        <form action="login.php" method="POST">
+            <h2>Deliverer Login</h2>
 
-        <?php if (!empty($error_message)): ?>
-            <div data-message="error"><?php echo htmlspecialchars($error_message); ?></div>
-        <?php endif; ?>
+            <div class="form-group">
+                <label for="login">Login</label>
+                <input type="text" id="login" name="login" required autofocus>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit">Login</button>
+            
+            <div class="text-center mt-3">
+                <p>Don't have an account? <a href="register.php">Register here</a></p>
+            </div>
+        </form>
+    </div>
+</main>
 
-        <div class="form-group">
-            <label for="login">Login</label>
-            <input type="text" id="login" name="login" required autofocus>
-        </div>
+<?php if (!empty($error_message)): ?>
+    <div class="toast toast-error">
+        <span class="toast-icon">✕</span>
+        <span class="toast-message"><?php echo htmlspecialchars($error_message); ?></span>
+    </div>
+<?php endif; ?>
+
+<footer>
+    <p>&copy; <?php echo date('Y'); ?> Sustainable Delivery. All rights reserved.</p>
+</footer>
+
+<script>
+// Auto-dismiss toast notifications after 4 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const toasts = document.querySelectorAll('.toast');
+    toasts.forEach(toast => {
+        // Trigger fade in
+        setTimeout(() => {
+            toast.classList.add('toast-show');
+        }, 100);
         
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        
-        <button type="submit">Login</button>
-        
-        <div class="text-center mt-3">
-            <p>Don't have an account? <a href="register.php">Register here</a></p>
-        </div>
-    </form>
-</div>
+        // Trigger fade out and remove
+        setTimeout(() => {
+            toast.classList.remove('toast-show');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 4000);
+    });
+});
+</script>
 
-<?php include 'footer.php'; ?>
+</body>
+</html>

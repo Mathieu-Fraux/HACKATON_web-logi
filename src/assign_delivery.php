@@ -5,7 +5,21 @@
  * Creates the final delivery record with an assigned user.
  */
 
-require_once 'header_external.php'; 
+require_once 'config.php';
+
+// Automatic logout for external API
+if (isset($_SESSION['user_id'])) {
+    $_SESSION = [];
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
+    session_destroy();
+    session_start();
+}
 
 $error_message = '';
 $success_message = '';
@@ -61,23 +75,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } else {
     $error_message = 'Invalid request method.';
 }
-
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Confirmation - Sustainable Delivery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<div class="container">
-    <div class="card">
-        <h2>Delivery Confirmation</h2>
+<main>
+    <div class="container">
+        <div class="card">
+            <h2>Delivery Confirmation</h2>
 
-        <?php if (!empty($error_message)): ?>
-            <div data-message="error"><?php echo htmlspecialchars($error_message); ?></div>
-            <p class="text-center mt-3"><a href="javascript:history.back()">Go Back</a></p>
-        <?php endif; ?>
+            <?php if (!empty($error_message)): ?>
+                <div data-message="error"><?php echo htmlspecialchars($error_message); ?></div>
+                <p class="text-center mt-3"><a href="javascript:history.back()">Go Back</a></p>
+            <?php endif; ?>
 
-        <?php if (!empty($success_message)): ?>
-            <div data-message="success"><?php echo htmlspecialchars($success_message); ?></div>
-            <p class="text-center mt-3">This confirmation page is for the external user. You can now close this window.</p>
-        <?php endif; ?>
+            <?php if (!empty($success_message)): ?>
+                <div data-message="success"><?php echo htmlspecialchars($success_message); ?></div>
+                <p class="text-center mt-3">You can now close this window. The deliverer has been notified.</p>
+            <?php endif; ?>
+        </div>
     </div>
-</div>
+</main>
 
-<?php include 'footer_external.php'; ?>
+<footer>
+    <p>&copy; <?php echo date('Y'); ?> Sustainable Delivery. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

@@ -1,83 +1,114 @@
 <?php
 /*
  * api_create_delivery.php
- * Shows a list of available deliverers for an external user to choose from.
- * Receives delivery details via GET parameters.
+ * Stateless POST endpoint for external partners to submit delivery requests.
+ * Creates delivery with status 'available' and no assigned user.
+ * Returns JSON response only - no UI.
  */
 
-require_once 'header_external.php';
+require_once 'config.php';
 
-$source = $_GET['Source'] ?? null;
-$destination = $_GET['Destination'] ?? null;
-$weight_g = $_GET['Weight'] ?? null;
-$is_bulky = $_GET['isBulky'] ?? false;
-$is_fresh = $_GET['isFresh'] ?? false;
+// Set JSON response headers
+header('Content-Type: application/json');
 
-$error_message = '';
-$users = [];
-
-if (empty($source) || empty($destination) || empty($weight_g)) {
-    $error_message = 'Missing required delivery information (Source, Destination, or Weight).';
-} else {
-    try {
-        $stmt = $pdo->query("SELECT id_user, login, first_name, last_name, vehicle, location, range_km FROM USER ORDER BY first_name, last_name");
-        $users = $stmt->fetchAll();
-
-        if (empty($users)) {
-            $error_message = 'No deliverers are available at this time.';
-        }
-    } catch (PDOException $e) {
-        $error_message = 'Database error: ' . $e->getMessage();
-    }
+// Only accept POST requests
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Method not allowed. Use POST.'
+    ]);
+    exit;
 }
 
-?>
+// Check Content-Type and extract data accordingly
+$content_type = $_SERVER['CONTENT_TYPE'] ?? '';
+$data = [];
 
-<div class="container">
-    <h2>Assign a Delivery</h2>
+if (strpos($content_type, 'application/json') !== false) {
+    // Handle JSON input
+    $json_input = file_get_contents('php://input');
+    $data = json_decode($json_input, true);
+    
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Invalid JSON format.'
+        ]);
+        exit;
+    }
+} else {
+    // Handle form-encoded input (fallback)
+    $data = $_POST;
+}
 
-    <?php if (!empty($error_message)): ?>
-        <div data-message="error"><?php echo htmlspecialchars($error_message); ?></div>
-    <?php else: ?>
-        
-        <div data-delivery-details>
-            <h3>Delivery Details:</h3>
-            <p><strong>From:</strong> <?php echo htmlspecialchars($source); ?></p>
-            <p><strong>To:</strong> <?php echo htmlspecialchars($destination); ?></p>
-            <p><strong>Weight:</strong> <?php echo htmlspecialchars($weight_g); ?>g</p>
-        </div>
+// Extract delivery data
+$source = $data['Source'] ?? null;
+$destination = $data['Destination'] ?? null;
+$weight_g = $data['Weight'] ?? null;
+$is_bulky = isset($data['isBulky']) ? (bool)$data['isBulky'] : false;
+$is_fresh = isset($data['isFresh']) ? (bool)$data['isFresh'] : false;
 
-        <h3>Choose a Deliverer:</h3>
-        
-        <form action="assign_delivery.php" method="POST">
-            <input type="hidden" name="Source" value="<?php echo htmlspecialchars($source); ?>">
-            <input type="hidden" name="Destination" value="<?php echo htmlspecialchars($destination); ?>">
-            <input type="hidden" name="Weight" value="<?php echo htmlspecialchars($weight_g); ?>">
-            <input type="hidden" name="isBulky" value="<?php echo htmlspecialchars($is_bulky); ?>">
-            <input type="hidden" name="isFresh" value="<?php echo htmlspecialchars($is_fresh); ?>">
+// Validate required fields
+if (empty($source) || empty($destination) || empty($weight_g)) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Missing required fields: Source, Destination, and Weight are required.'
+    ]);
+    exit;
+}
 
-            <div data-user-list>
-                <?php foreach ($users as $user): ?>
-                    <label data-user-option>
-                        <input type="radio" name="id_user_assigned" value="<?php echo $user['id_user']; ?>" required>
-                        <div>
-                            <strong><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></strong>
-                            <small>(<?php echo htmlspecialchars($user['login']); ?>)</small>
-                            <br>
-                            <small>
-                                Vehicle: <?php echo htmlspecialchars($user['vehicle'] ?? 'N/A'); ?> | 
-                                Based in: <?php echo htmlspecialchars($user['location'] ?? 'N/A'); ?> |
-                                Range: <?php echo htmlspecialchars($user['range_km']); ?> KM
-                            </small>
-                        </div>
-                    </label>
-                <?php endforeach; ?>
-            </div>
+// Validate weight is numeric and positive
+if (!is_numeric($weight_g) || $weight_g <= 0) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Weight must be a positive number.'
+    ]);
+    exit;
+}
 
-            <button type="submit">Confirm and Create Delivery</button>
-        </form>
+// Calculate price (same logic as before)
+$base_fee = 5.0;
+$price_per_kg = 1.5;
+$price = $base_fee + (($weight_g / 1000) * $price_per_kg);
 
-    <?php endif; ?>
-</div>
+try {
+    // Create delivery with status 'available' and no assigned user
+    $sql = "INSERT INTO DELIVERY (source, destination, weight_g, is_bulky, is_fresh, status, id_user_assigned, price) 
+            VALUES (?, ?, ?, ?, ?, 'available', NULL, ?)";
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        $source,
+        $destination,
+        (float)$weight_g,
+        (bool)$is_bulky,
+        (bool)$is_fresh,
+        $price
+    ]);
 
-<?php include 'footer_external.php'; ?>
+    $delivery_id = $pdo->lastInsertId();
+
+    // Return success response
+    http_response_code(201);
+    echo json_encode([
+        'success' => true,
+        'delivery_id' => (int)$delivery_id,
+        'status' => 'available',
+        'price' => number_format($price, 2),
+        'message' => 'Delivery created successfully and is now available for drivers to claim.'
+    ]);
+
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Database error: Unable to create delivery. Please try again.'
+    ]);
+    
+    // Log error for debugging (in production, use proper logging)
+    error_log('Delivery creation error: ' . $e->getMessage());
+}

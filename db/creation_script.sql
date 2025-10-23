@@ -32,10 +32,11 @@ CREATE TABLE IF NOT EXISTS `DELIVERY` (
     `weight_g` FLOAT NULL COMMENT 'Weight of the parcel in grams',
     `is_bulky` BOOLEAN DEFAULT FALSE COMMENT 'Optional: True if the parcel is bulky',
     `is_fresh` BOOLEAN DEFAULT FALSE COMMENT 'Optional: True if the parcel requires fresh/cold transport',
-    `price` DECIMAL(10, 2) NULL COMMENT 'Price of the delivery, set once a deliverer is assigned',
-    `status` VARCHAR(50) NULL DEFAULT 'pending' COMMENT 'Current status of the delivery (e.g., pending, assigned, in_progress, completed, cancelled)',
+    `price` DECIMAL(10, 2) NULL COMMENT 'Price of the delivery, calculated at creation',
+    `status` VARCHAR(50) NULL DEFAULT 'available' COMMENT 'Current status: available, assigned, in_progress, completed, cancelled',
     `id_user_assigned` INT NULL COMMENT 'The ID of the user (deliverer) assigned to this delivery',
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Date and time the delivery was registered',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Date and time the delivery was created by external API',
+    `claimed_at` TIMESTAMP NULL COMMENT 'Date and time the delivery was claimed by a driver',
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Date and time the delivery was last updated (e.g., status change)',
 
     -- Foreign key constraint
@@ -44,3 +45,8 @@ CREATE TABLE IF NOT EXISTS `DELIVERY` (
     -- but it becomes unassigned (id_user_assigned becomes NULL).
     FOREIGN KEY (`id_user_assigned`) REFERENCES `USER`(`id_user`) ON DELETE SET NULL
 ) ENGINE=InnoDB;
+
+-- Add index for faster queries on available deliveries
+CREATE INDEX idx_status ON DELIVERY(status);
+CREATE INDEX idx_user_assigned ON DELIVERY(id_user_assigned);
+CREATE INDEX idx_status_user ON DELIVERY(status, id_user_assigned);
