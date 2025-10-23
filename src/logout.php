@@ -4,12 +4,10 @@
  * Destroys the user session and redirects to login.
  */
 
-require_once 'config.php'; // This will start the session
+require_once 'config.php';
 
-// Unset all session variables
 $_SESSION = [];
 
-// Destroy the session cookie
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(session_name(), '', time() - 42000,
@@ -18,9 +16,7 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// Finally, destroy the session
 session_destroy();
 
-// Redirect to the login page
 header("Location: login.php");
 exit;

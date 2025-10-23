@@ -1,6 +1,6 @@
 <?php
-// footer.php
-// Closes the main and body tags.
+// footer_external.php
+// Closes the main and body tags for external pages.
 ?>
 
 </main>
