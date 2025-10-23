@@ -1,6 +1,6 @@
 {
-    "Source": "37.4219983, -122.084", // STRING
-    "Destination": "37.4219983, -122.084", // STRING
-    "Weight": 5040.65, // FLOAT (EN GRAMMES)
-    "isBulky": true // BOOL
+    "Source": "37.4219983, -122.084", // STRING [REQUIRED]
+    "Destination": "37.4219983, -122.084", // STRING [REQUIRED]
+    "Weight": 5040.65, // FLOAT (EN GRAMMES) [REQUIRED]
+    "isBulky": true // BOOL [OPTIONAL, DEFAULT = FALSE]
 }
