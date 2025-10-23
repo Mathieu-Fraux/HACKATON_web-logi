@@ -1,0 +1,34 @@
+<?php
+/*
+ * config.php
+ * Database connection settings and site configuration.
+ */
+
+// --- DATABASE SETTINGS ---
+// !! Replace with your actual database credentials !!
+define('DB_HOST', '127.0.0.1');      // Or 'localhost'
+define('DB_NAME', 'sustainable_delivery');
+define('DB_USER', 'root');          // Your MySQL username
+define('DB_PASS', '');              // Your MySQL password
+
+// --- PDO Database Connection ---
+$dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8";
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   => false,
+];
+
+try {
+    // Create the PDO database connection object
+    $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+} catch (\PDOException $e) {
+    // If connection fails, stop the script and show an error
+    throw new \PDOException($e->getMessage(), (int)$e->getCode());
+}
+
+// --- Session ---
+// Start the session on all pages that include this file
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
