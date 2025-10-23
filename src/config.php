@@ -6,7 +6,7 @@
 
 // --- DATABASE SETTINGS ---
 // !! Replace with your actual database credentials !!
-define('DB_HOST', '127.0.0.1');      // Or 'localhost'
+define('DB_HOST', 'localhost');      // Or 'localhost'
 define('DB_NAME', 'sustainable_delivery');
 define('DB_USER', 'root');          // Your MySQL username
 define('DB_PASS', '');              // Your MySQL password
