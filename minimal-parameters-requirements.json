@@ -1,0 +1,6 @@
+{
+    "Source": "37.4219983, -122.084", // STRING
+    "Destination": "37.4219983, -122.084", // STRING
+    "Weight": 5040.65, // FLOAT (EN GRAMMES)
+    "isBulky": true // BOOL
+}
