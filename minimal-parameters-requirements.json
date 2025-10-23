@@ -1,7 +1,7 @@
 {
-    "Source": "SourceAddress", // STRING [REQUIRED]
-    "Destination": "DestinationAddress", // STRING [REQUIRED]
-    "Weight": 5040.65, // FLOAT (EN GRAMMES) [REQUIRED]
-    "isBulky": false, // BOOL [OPTIONAL, DEFAULT = FALSE]
-    "isFresh": false // BOOL [OPTIONAL, DEFAULT = FALSE]
+    "Source": "SourceAddress", 
+    "Destination": "DestinationAddress",
+    "Weight": 5040.65,
+    "isBulky": false,
+    "isFresh": false 
 }
