@@ -11,15 +11,15 @@ URL : http://localhost/green-logistics/api_create_delivery.php
 Méthode : POST
 
 Corps (JSON) :
-
-```{
+```
+{
     "Source": "123 Rue de Départ, 75001 Paris",
     "Destination": "456 Avenue d'Arrivée, 69001 Lyon",
     "Weight": 1500,
     "isBulky": false,
     "isFresh": true
-}```
-
+}
+```
 
 
 
