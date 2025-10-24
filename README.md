@@ -1,7 +1,34 @@
-# HACKATON_web-logi
+# Green Logistics - Marketplace Logistique
 
-## Site web de logistique fait pour un hackaton (durée 3j).
+## Ce projet est une application web de place de marché logistique. Elle fournit une API aux Partenaires Externes pour soumettre des demandes de livraison.
 
-Le principe est un site web pour faire de la logistique a l'échelle locale ou les trajets ne dépasse pas 100 km.
-Des personnes peuvent créer un compte pour faire des livraisons pour d'autres personnes et se faire payer pour ces livraisons.
-Ce site est fait pour être en connexion avec d'autres sites web externe qui donnerait les livraisons à faire. 
+### API pour les Partenaires
+
+Ce point de terminaison est utilisé pour soumettre de nouvelles livraisons à la marketplace.
+
+URL : http://localhost/green-logistics/api_create_delivery.php
+
+Méthode : POST
+
+Corps (JSON) :
+
+{
+    "Source": "123 Rue de Départ, 75001 Paris",
+    "Destination": "456 Avenue d'Arrivée, 69001 Lyon",
+    "Weight": 1500,
+    "isBulky": false,
+    "isFresh": true
+}
+
+
+
+
+### Outils Recommandés
+
+Pour l'environnement serveur (PHP/MySQL) :
+
+XAMPP (Serveur Apache + MySQL + PHP)
+
+Pour tester l'API :
+
+Bruno (Client API open-source et hors-ligne)
